@@ -1,0 +1,4 @@
+In this project, I'm going to create a webpage for students of my daughters class. They are going to use the webpage to create images of dragons boats.
+
+It's a single webpage project. On this page, the user answers a number of questions (defined in @dragon_properties.txt ), each question occupying the whole page and fades into the next question. After all the qeustions are answered 
+
