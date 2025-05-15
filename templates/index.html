@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>二年级二班 智绘龙舟</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="active-users">
+        <span>当前在线:</span>
+        <span class="active-users-count">0</span>
+        <span>人</span>
+    </div>
+    
+    <div class="dragon-animation">
+        🐉
+    </div>
+    
+    <div class="app-container">
+        <div class="ingredients-sidebar">
+            <h3>🎨 已选配料</h3>
+            <div class="ingredients-list" id="ingredients-list">
+                <!-- Ingredients will be added here -->
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <header class="app-header">
+                <h1>二年级二班 智绘龙舟</h1>
+                <div class="floating-boat">🚣‍♂️</div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+            </header>
+            
+            <main>
+                <div id="question-container">
+                    <!-- Questions will be loaded here -->
+                </div>
+            </main>
+
+            <button id="start-over" class="start-over-button" style="display: none;">
+                <span class="button-emoji">🔄</span>
+                重新开始
+            </button>
+        </div>
+    </div>
+    <script src="/static/js/script.js"></script>
+</body>
+</html> 

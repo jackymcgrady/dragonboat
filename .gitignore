@@ -1,0 +1,18 @@
+# Environment variables
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+
+# Generated files
+generated_images/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store 
