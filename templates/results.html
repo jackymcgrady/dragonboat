@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>龙舟作品展示</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100vh;
+            background: white;
+            display: flex;
+            align-items: center;
+        }
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 0;
+            width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        .image-card {
+            aspect-ratio: 1;
+            width: 100%;
+        }
+        .image-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: opacity 0.5s ease;
+        }
+        .image-card.fade-out img {
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="results-grid" id="imagesGrid"></div>
+
+    <script>
+        let currentImages = new Map();
+
+        function updateImages(newImages) {
+            const grid = document.getElementById('imagesGrid');
+            const newImageMap = new Map();
+            
+            newImages.forEach(image => {
+                newImageMap.set(image.filename, image);
+            });
+
+            newImageMap.forEach((image, filename) => {
+                if (!currentImages.has(filename)) {
+                    const card = createImageCard(image);
+                    if (grid.children.length >= 6) {
+                        const oldestCard = grid.lastElementChild;
+                        oldestCard.classList.add('fade-out');
+                        setTimeout(() => oldestCard.remove(), 500);
+                    }
+                    grid.insertBefore(card, grid.firstChild);
+                }
+            });
+
+            currentImages = newImageMap;
+        }
+
+        function createImageCard(image) {
+            const card = document.createElement('div');
+            card.className = 'image-card';
+            
+            const img = document.createElement('img');
+            img.src = image.data;
+            img.alt = '';
+            
+            card.appendChild(img);
+            return card;
+        }
+
+        function loadLatestImages() {
+            fetch('/latest-images')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        data.images = data.images.slice(0, 6);
+                        updateImages(data.images);
+                    }
+                })
+                .catch(console.error);
+        }
+
+        loadLatestImages();
+        setInterval(loadLatestImages, 5000);
+    </script>
+</body>
+</html> 

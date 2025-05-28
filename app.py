@@ -101,7 +101,8 @@ def generate_image():
             model="gpt-image-1",  # Using GPT Image model
             prompt=full_prompt,
             quality="medium",
-            size="1024x1024"
+            size="1024x1024",
+            background="transparent"
         )
 
         # Get base64 image data
@@ -132,6 +133,42 @@ def generate_image():
             'status': 'error',
             'message': str(e)
         }), 500
+
+@app.route('/latest-images')
+def get_latest_images():
+    try:
+        # Get list of all image files in generated_images directory
+        image_files = [f for f in os.listdir('generated_images') if f.endswith('.png')]
+        # Sort by filename (which contains timestamp) in reverse order
+        image_files.sort(reverse=True)
+        # Take only the latest 6 images
+        latest_images = image_files[:6]
+        
+        # Create list of image data
+        images_data = []
+        for img_file in latest_images:
+            file_path = os.path.join('generated_images', img_file)
+            with open(file_path, 'rb') as f:
+                img_data = base64.b64encode(f.read()).decode('utf-8')
+            images_data.append({
+                'filename': img_file,
+                'data': f'data:image/png;base64,{img_data}',
+                'created_at': os.path.getctime(file_path)
+            })
+            
+        return jsonify({
+            'status': 'success',
+            'images': images_data
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 500
+
+@app.route('/results')
+def results():
+    return send_file('templates/results.html')
 
 if __name__ == '__main__':
     # Don't run with debug mode in production

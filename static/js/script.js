@@ -121,7 +121,7 @@ function displayQuestion(index) {
     setTimeout(() => {
         if (index >= questions.length) {
             // Construct the prompt
-            const systemPrompt = `Create an simple image of a dragon boat, which fits all the requirements that the user has chosen. The end product should be simple and suitable for a elementary schooler to copy.`;
+            const systemPrompt = `Create an simple image of a dragon boat, which fits all the requirements that the user has chosen. The end product should be simple and suitable for a elementary schooler to copy, with vibrant colors. Make it flat. Generate a square PNG image with a transparent background, where the subject is fully within a circular frame centered in the image. The area outside the circle should be fully transparent.`;
             let userPrompt = "帮我画一条龙舟，给我临摹，我是一个小学生。";
             
             // Helper function to get answer text without the number prefix
