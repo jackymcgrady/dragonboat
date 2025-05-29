@@ -28,20 +28,23 @@ CORS(app)  # Enable CORS for all routes
 # Thread-local storage for OpenAI clients
 thread_local = threading.local()
 
-# User tracking
+# User tracking with thread safety
 active_users = defaultdict(int)
+users_lock = threading.Lock()
 ACTIVE_THRESHOLD = 60  # seconds
 
 def cleanup_inactive_users():
     current_time = time.time()
-    inactive = [uid for uid, last_seen in active_users.items() 
-               if current_time - last_seen > ACTIVE_THRESHOLD]
-    for uid in inactive:
-        del active_users[uid]
+    with users_lock:
+        inactive = [uid for uid, last_seen in active_users.items() 
+                   if current_time - last_seen > ACTIVE_THRESHOLD]
+        for uid in inactive:
+            del active_users[uid]
 
 def get_active_users_count():
     cleanup_inactive_users()
-    return len(active_users)
+    with users_lock:
+        return len(active_users)
 
 def get_openai_client():
     if not hasattr(thread_local, "client"):
@@ -73,7 +76,8 @@ def send_js(path):
 def update_active_users():
     user_id = request.json.get('userId')
     if user_id:
-        active_users[user_id] = time.time()
+        with users_lock:
+            active_users[user_id] = time.time()
     return jsonify({
         'active_users': get_active_users_count()
     })
@@ -88,7 +92,8 @@ def generate_image():
         
         # Update user activity
         if user_id:
-            active_users[user_id] = time.time()
+            with users_lock:
+                active_users[user_id] = time.time()
         
         # Combine prompts
         full_prompt = f"{system_prompt}\n\nUser request: {user_prompt}"
@@ -109,8 +114,8 @@ def generate_image():
         image_base64 = result.data[0].b64_json
         image_bytes = base64.b64decode(image_base64)
         
-        # Generate timestamp filename
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        # Generate timestamp filename with microseconds for uniqueness
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
         filename = f"dragon_boat_{timestamp}.png"
         filepath = os.path.join("generated_images", filename)
         
@@ -141,8 +146,8 @@ def get_latest_images():
         image_files = [f for f in os.listdir('generated_images') if f.endswith('.png')]
         # Sort by filename (which contains timestamp) in reverse order
         image_files.sort(reverse=True)
-        # Take only the latest 6 images
-        latest_images = image_files[:6]
+        # Take only the latest 12 images
+        latest_images = image_files[:12]
         
         # Create list of image data
         images_data = []
@@ -171,5 +176,5 @@ def results():
     return send_file('templates/results.html')
 
 if __name__ == '__main__':
-    # Don't run with debug mode in production
-    app.run(host='0.0.0.0', port=8002) 
+    # Enable threading for better concurrency
+    app.run(host='0.0.0.0', port=8002, threaded=True) 
